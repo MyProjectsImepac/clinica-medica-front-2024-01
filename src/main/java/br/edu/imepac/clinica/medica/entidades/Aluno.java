@@ -6,6 +6,17 @@ public class Aluno {
     private String nome;
     private String matricula;
 
+    public Aluno(Long id, String nome, String matricula) {
+        this.id = id;
+        this.nome = nome;
+        this.matricula = matricula;
+    }
+
+    public Aluno(String nome, String matricula) {
+        this.nome = nome;
+        this.matricula = matricula;
+    }
+
     public Long getId() {
         return id;
     }

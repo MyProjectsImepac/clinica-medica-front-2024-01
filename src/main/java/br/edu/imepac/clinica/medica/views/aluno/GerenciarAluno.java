@@ -4,12 +4,15 @@
  */
 package br.edu.imepac.clinica.medica.views.aluno;
 
+import br.edu.imepac.clinica.medica.database.daos.AlunoDao;
+import br.edu.imepac.clinica.medica.entidades.Aluno;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +66,7 @@ public class GerenciarAluno extends javax.swing.JFrame {
             }
         ));
         jTable1.setColumnSelectionAllowed(true);
+        jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jTable1);
         jTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -89,11 +93,11 @@ public class GerenciarAluno extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(57, 57, 57)
+                        .addGap(38, 38, 38)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2))))
-                .addContainerGap(14, Short.MAX_VALUE))
+                            .addComponent(jButton2)
+                            .addComponent(jButton1))))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -116,16 +120,10 @@ public class GerenciarAluno extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         try {
-            Connection connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/academico?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false",
-                    "root",
-                    "12345678"
-            );
-            String sql = "SELECT * FROM aluno";
-            PreparedStatement pst = connection.prepareStatement(sql);
-            ResultSet resultSet = pst.executeQuery();
+            AlunoDao alunoDao = new AlunoDao();
+            List<Aluno> listaDeAlunos = alunoDao.list();
 
-            jTable1.setModel(buildTableModel(resultSet));
+            jTable1.setModel(buildTableModel(listaDeAlunos));
         } catch (SQLException ex) {
             Logger.getLogger(AlunoCadastro.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -134,24 +132,15 @@ public class GerenciarAluno extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            // Obtenha o valor do ID da linha selecionada (assumindo que a primeira coluna é o ID)
-            Object id = jTable1.getValueAt(selectedRow, 0);
+            Long id = (Long) jTable1.getValueAt(selectedRow, 0);
             try {
-                Connection connection = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/academico?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false",
-                        "root",
-                        "12345678"
-                );
-                String deleteQuery = "DELETE FROM aluno WHERE id = ?";
-                PreparedStatement pst = connection.prepareStatement(deleteQuery);
-                pst.setObject(1, id);
-                int rowsAffected = pst.executeUpdate();
+                AlunoDao alunoDao = new AlunoDao();
+                boolean result = alunoDao.delete(id);
+                alunoDao.close();
 
-                if (rowsAffected > 0) {
-                    // Remove a linha do JTable
+                if (result) {
                     jTable1.remove(selectedRow);
                 }
-                connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -160,23 +149,20 @@ public class GerenciarAluno extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    public static DefaultTableModel buildTableModel(ResultSet resultSet) throws SQLException {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-
-        // Nomes das colunas
-        int columnCount = metaData.getColumnCount();
+    public static DefaultTableModel buildTableModel(List<Aluno> listaDeAlunos) throws SQLException {
         Vector<String> columnNames = new Vector<>();
-        for (int column = 1; column <= columnCount; column++) {
-            columnNames.add(metaData.getColumnName(column));
-        }
+        columnNames.add("id");
+        columnNames.add("Nome");
+        columnNames.add("Matrícula");
 
         // Dados das linhas
         Vector<Vector<Object>> data = new Vector<>();
-        while (resultSet.next()) {
+        for (Aluno aluno : listaDeAlunos) {
             Vector<Object> vector = new Vector<>();
-            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-                vector.add(resultSet.getObject(columnIndex));
-            }
+            vector.add(aluno.getId());
+            vector.add(aluno.getNome());
+            vector.add(aluno.getMatricula());
+            
             data.add(vector);
         }
 

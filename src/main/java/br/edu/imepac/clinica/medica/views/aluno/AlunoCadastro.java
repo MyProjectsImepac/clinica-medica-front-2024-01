@@ -127,7 +127,7 @@ public class AlunoCadastro extends javax.swing.JFrame {
 
             if (resposta == true) {
                 alunoDao.close();
-                
+
                 JOptionPane.showMessageDialog(this,
                         "Cadastro realizado com sucesso!");
                 nome.setText("");
@@ -142,10 +142,8 @@ public class AlunoCadastro extends javax.swing.JFrame {
     }
 
     private Aluno criar_entidade_aluno() {
-        Aluno aluno01 = new Aluno();
-        aluno01.setNome(nome.getText());
-        aluno01.setMatricula(matricula.getText());
-        return aluno01;
+        Aluno aluno = new Aluno(nome.getText(), matricula.getText());
+        return aluno;
     }
 
     private boolean validar_campos_formulario() throws HeadlessException {

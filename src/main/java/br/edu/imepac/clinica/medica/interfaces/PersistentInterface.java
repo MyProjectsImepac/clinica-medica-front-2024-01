@@ -6,10 +6,10 @@ public interface PersistentInterface<T> {
 
     public boolean save(T entity) throws SQLException;
 
-    public T load(long id);
+    public T load(long id) throws SQLException;
 
-    public boolean update(T entity);
+    public boolean update(T entity) throws SQLException;
 
-    public boolean delete(T entity);
+    public boolean delete(T entity) throws SQLException;
 
 }
